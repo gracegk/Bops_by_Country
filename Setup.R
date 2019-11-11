@@ -33,3 +33,15 @@ USA_2017_jan <- full_join(USA_2017_jan, USA_2017_jan_features, by = 'id')
 ## Make function based on process above, applicable for every csv file 
 
 
+
+
+
+
+
+
+
+# how to get genre of artist... such a roundabout way
+phonyppl <- get_artist_audio_features('phony ppl')
+phonypplID <- unique(phonyppl$artist_id)
+phonyppl_etc <- get_artist(phonypplID)
+
