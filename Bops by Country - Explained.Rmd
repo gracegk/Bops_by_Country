@@ -1,0 +1,26 @@
+---
+title: "Bops by Country - Explained"
+author: "Grace Kim"
+date: "11/11/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Taiwan was chosen because it was one of the first few countries where Spotify expanded to in Asia. Furthermore, I expected to see more non-American songs on the chart because English is not as commonly used in Taiwan, compared to regions such as Hong Kong or Singapore. 
+
+```{r}
+
+```
+
+## What are the Top 200 Songs in USA and Taiwan?
+
+similar or different characteristics for the tracks. 
+(valence, speechiness, loudness, danceability, tempo, )
+
+```{r}
+```
