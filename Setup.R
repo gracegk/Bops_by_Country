@@ -1,9 +1,7 @@
 # devtools::install_github('charlie86/spotifyr')
 library(spotifyr)
 library(tidyverse)
-library(knitr)
 library(lubridate)
-library(dplyr)
 library(data.table)
 
 # my personal Spotify user id: 122043448
@@ -28,6 +26,7 @@ spotifydata_csv <- function(data) {
   new_data_2 <- get_track_audio_features(ids = new_data$id[101:200])
   new_data_features <- rbind(new_data_1, new_data_2)
   new_data <- full_join(new_data, new_data_features, by = 'id')
+  new_data$Streams <- as.numeric(as.character(new_data$Streams))
   return(new_data)
 }
 
