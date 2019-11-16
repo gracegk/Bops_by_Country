@@ -17,7 +17,7 @@ access_token <- get_spotify_access_token()
 ## Make function based on process above, applicable for every csv file 
 # Read in csv file, clean header issues, extract track IDs from URLs
 # Add track feature data (split bc get_track_audio_features() only lets you enter 100 IDs at a time)
-spotifydata_csv <- function(data) {
+read_spotify_csv <- function(data) {
   new_data <- read.csv(data)
   names(new_data) <- lapply(new_data[1, ], as.character)
   new_data <- new_data[-1,] 
@@ -30,17 +30,17 @@ spotifydata_csv <- function(data) {
   return(new_data)
 }
 
-US_2017_jan <- spotifydata_csv("Raw_Data/regional-us-weekly-2016-12-30--2017-01-06.csv")
-US_2017_jul <- spotifydata_csv("Raw_Data/regional-us-weekly-2017-06-30--2017-07-07.csv")
-US_2018_jan <- spotifydata_csv("Raw_Data/regional-us-weekly-2017-12-29--2018-01-05.csv")
-US_2018_jul <- spotifydata_csv("Raw_Data/regional-us-weekly-2018-06-29--2018-07-06.csv")
-US_2019_jan <- spotifydata_csv("Raw_Data/regional-us-weekly-2018-12-28--2019-01-04.csv")
+US_2017_jan <- read_spotify_csv("Raw_Data/regional-us-weekly-2016-12-30--2017-01-06.csv")
+US_2017_jul <- read_spotify_csv("Raw_Data/regional-us-weekly-2017-06-30--2017-07-07.csv")
+US_2018_jan <- read_spotify_csv("Raw_Data/regional-us-weekly-2017-12-29--2018-01-05.csv")
+US_2018_jul <- read_spotify_csv("Raw_Data/regional-us-weekly-2018-06-29--2018-07-06.csv")
+US_2019_jan <- read_spotify_csv("Raw_Data/regional-us-weekly-2018-12-28--2019-01-04.csv")
 
-TW_2017_jan <- spotifydata_csv("Raw_Data/regional-tw-weekly-2016-12-30--2017-01-06.csv")
-TW_2017_jul <- spotifydata_csv("Raw_Data/regional-tw-weekly-2017-06-30--2017-07-07.csv")
-TW_2018_jan <- spotifydata_csv("Raw_Data/regional-tw-weekly-2017-12-29--2018-01-05.csv")
-TW_2018_jul <- spotifydata_csv("Raw_Data/regional-tw-weekly-2018-06-29--2018-07-06.csv")
-TW_2019_jan <- spotifydata_csv("Raw_Data/regional-tw-weekly-2018-12-28--2019-01-04.csv")
+TW_2017_jan <- read_spotify_csv("Raw_Data/regional-tw-weekly-2016-12-30--2017-01-06.csv")
+TW_2017_jul <- read_spotify_csv("Raw_Data/regional-tw-weekly-2017-06-30--2017-07-07.csv")
+TW_2018_jan <- read_spotify_csv("Raw_Data/regional-tw-weekly-2017-12-29--2018-01-05.csv")
+TW_2018_jul <- read_spotify_csv("Raw_Data/regional-tw-weekly-2018-06-29--2018-07-06.csv")
+TW_2019_jan <- read_spotify_csv("Raw_Data/regional-tw-weekly-2018-12-28--2019-01-04.csv")
 
 
 # how to get genre of artist... such a roundabout way
