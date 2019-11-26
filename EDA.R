@@ -1,5 +1,6 @@
 source("Setup.R")
 library(plotly)
+library(ggplot2)
 
 # danceability, speechiness, acousticness, valence, tempo, duration_ms
 
@@ -39,6 +40,16 @@ plot_density_dance <- ggplot(all, aes(x=danceability, fill=country,
   ggtitle("Distribution of Danceability Data")
 
 ggplotly(plot_density_dance, tooltip=c("text"))
+
+plot_density_rap <- ggplot(all, aes(x=speechiness, fill=country,
+                                      text = paste(country)))+
+  geom_density(alpha=0.7, color=NA)+
+  labs(x="Speechiness", y="Density") +
+  guides(fill=guide_legend(title="Country"))+
+  theme_minimal()+
+  ggtitle("Distribution of Speechiness Data")
+
+ggplotly(plot_density_rap, tooltip=c("text"))
 
 ggplot(all, mapping = aes(x = danceability, y = Streams, color = country)) + 
   geom_point()
