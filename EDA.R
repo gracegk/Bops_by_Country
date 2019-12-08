@@ -2,46 +2,15 @@ source("Setup.R")
 library(plotly)
 library(ggplot2)
 
-# danceability, speechiness, acousticness, valence, tempo, duration_ms
-
-
-ggplot(data = TW_2017_jan, mapping = aes(x = speechiness, y = log(Streams))) + 
-  geom_point()
-
-ggplot(data = US_2017_jan, mapping = aes(x = speechiness, y = log(Streams))) + 
-  geom_point()
+# variables to consider: danceability, speechiness, acousticness, valence, tempo, duration_ms
+# irrelevant variables: URL, type, uri, track_href, analysis_url
 
 ################################
 
-usa <- rbind(US_2017_jan, US_2017_jul, US_2018_jan, US_2018_jul, US_2019_jan)
-usa$date[1:200] <- "2017-01"
-usa$date[201:400] <- "2017-07"
-usa$date[401:600] <- "2018-01"
-usa$date[601:800] <- "2018-07"
-usa$date[801:1000] <- "2019-01"
+## how data from different countries look like 
+# distribution of speechiness
 
-taiwan <- rbind(TW_2017_jan, TW_2017_jul, TW_2018_jan, TW_2018_jul, TW_2019_jan)
-taiwan$date[1:200] <- "2017-01"
-taiwan$date[201:400] <- "2017-07"
-taiwan$date[401:600] <- "2018-01"
-taiwan$date[601:800] <- "2018-07"
-taiwan$date[801:1000] <- "2019-01"
-
-all <- rbind(usa, taiwan)
-all$country[1:1000] <- "USA"
-all$country[1001:2000] <- "Taiwan"
-
-plot_density_dance <- ggplot(all, aes(x=danceability, fill=country,
-                                          text = paste(country)))+
-  geom_density(alpha=0.7, color=NA)+
-  labs(x="Danceability", y="Density") +
-  guides(fill=guide_legend(title="Country"))+
-  theme_minimal()+
-  ggtitle("Distribution of Danceability Data")
-
-ggplotly(plot_density_dance, tooltip=c("text"))
-
-plot_density_rap <- ggplot(all, aes(x=speechiness, fill=country,
+plot_density_speech <- ggplot(all, aes(x=speechiness, fill=country,
                                       text = paste(country)))+
   geom_density(alpha=0.7, color=NA)+
   labs(x="Speechiness", y="Density") +
@@ -49,44 +18,135 @@ plot_density_rap <- ggplot(all, aes(x=speechiness, fill=country,
   theme_minimal()+
   ggtitle("Distribution of Speechiness Data")
 
-ggplotly(plot_density_rap, tooltip=c("text"))
+ggplotly(plot_density_speech, tooltip=c("text"))
 
-ggplot(all, mapping = aes(x = danceability, y = Streams, color = country)) + 
-  geom_point()
+# distribution of acousticness
 
-################################
+plot_density_acoustic <- ggplot(all, aes(x=acousticness, fill=country,
+                                    text = paste(country)))+
+  geom_density(alpha=0.7, color=NA)+
+  labs(x="Acousticness", y="Density") +
+  guides(fill=guide_legend(title="Country"))+
+  theme_minimal()+
+  ggtitle("Distribution of Acousticness Data")
 
-# proportion of streams?
-US_2017_jan[1,4]/sum(US_2017_jan$Streams)
-US_2017_jan$stream_pct <- US_2017_jan$Streams/sum(US_2017_jan$Streams) * 100
-TW_2017_jan$stream_pct <- TW_2017_jan$Streams/sum(TW_2017_jan$Streams) * 100
+ggplotly(plot_density_acoustic, tooltip=c("text"))
 
-jan2017 <- rbind(TW_2017_jan, US_2017_jan)
-jan2017$country[1:200] <- "Taiwan"
-jan2017$country[201:400] <- "USA"
+# distribution of danceability
 
-# comparing USA, Taiwan's number of streams over track qualities
-ggplot(data = jan2017, mapping = aes(x = speechiness, y = stream_pct, color = country)) + 
-  geom_boxplot()
-
-ggplot(data = jan2017, mapping = aes(x = danceability, y = stream_pct, color = country)) + 
-  geom_point()
-
-ggplot(data = jan2017, mapping = aes(x = danceability, y = stream_pct, color = country)) + 
-  geom_boxplot()
-
-ggplot(data = jan2017, mapping = aes(x = danceability, y = stream_pct, color = country)) + 
-  geom_violin()
-
-ggplot(data = jan2017, mapping = aes(x = valence, y = stream_pct, color = country)) + 
-  geom_boxplot()
-
-plot_density_dance <- ggplot(jan2017, aes(x=danceability, fill=country,
-                            text = paste(country)))+
+plot_density_dance <- ggplot(all, aes(x=danceability, fill=country,
+                                      text = paste(country)))+
   geom_density(alpha=0.7, color=NA)+
   labs(x="Danceability", y="Density") +
-  guides(fill=guide_legend(title="Playlist"))+
+  guides(fill=guide_legend(title="Country"))+
   theme_minimal()+
   ggtitle("Distribution of Danceability Data")
 
 ggplotly(plot_density_dance, tooltip=c("text"))
+
+# distribution of energy
+
+plot_density_energy <- ggplot(all, aes(x=energy, fill=country,
+                                      text = paste(country)))+
+  geom_density(alpha=0.7, color=NA)+
+  labs(x="Energy", y="Density") +
+  guides(fill=guide_legend(title="Country"))+
+  theme_minimal()+
+  ggtitle("Distribution of Energy Data")
+
+ggplotly(plot_density_energy, tooltip=c("text"))
+
+# distribution of valence -- not rly insightful
+
+plot_density_val <- ggplot(all, aes(x=valence, fill=country,
+                                    text = paste(country)))+
+  geom_density(alpha=0.7, color=NA)+
+  labs(x="Valence", y="Density") +
+  guides(fill=guide_legend(title="Country"))+
+  theme_minimal()+
+  ggtitle("Distribution of Valence Data")
+
+ggplotly(plot_density_val, tooltip=c("text"))
+
+# distribution of tempo -- not that different. what's with the two peaks?
+
+plot_density_tempo <- ggplot(all, aes(x=tempo, fill=country,
+                                    text = paste(country)))+
+  geom_density(alpha=0.7, color=NA)+
+  labs(x="Tempo", y="Density") +
+  guides(fill=guide_legend(title="Country"))+
+  theme_minimal()+
+  ggtitle("Distribution of Tempo Data")
+
+ggplotly(plot_density_tempo, tooltip=c("text"))
+
+# distribution of duration -- not rly insightful
+
+plot_density_duration <- ggplot(all, aes(x=duration_ms, fill=country,
+                                    text = paste(country)))+
+  geom_density(alpha=0.7, color=NA)+
+  labs(x="Duration", y="Density") +
+  guides(fill=guide_legend(title="Country"))+
+  theme_minimal()+
+  ggtitle("Distribution of Duration Data")
+
+ggplotly(plot_density_duration, tooltip=c("text"))
+
+# distribution of liveness -- not rly insightful
+
+plot_density_live <- ggplot(all, aes(x=liveness, fill=country,
+                                    text = paste(country)))+
+  geom_density(alpha=0.7, color=NA)+
+  labs(x="Liveness", y="Density") +
+  guides(fill=guide_legend(title="Country"))+
+  theme_minimal()+
+  ggtitle("Distribution of Liveness Data")
+
+ggplotly(plot_density_live, tooltip=c("text"))
+
+################################
+
+# isolate the numeric variables
+usa_test <- usa[,c(4, 7, 8, 10, 12, 13, 15, 16, 22)]
+View(cor(usa_test))
+
+## relationships between stream count or rank and song characteristics
+# speechiness
+
+ggplot(usa, aes(x=speechiness, y=log(Streams))) + 
+  geom_point(aes(col=date)) + 
+  ggtitle("Speechiness vs. Streams (USA)")
+
+plot_ly(data=usa, x = ~speechiness, y = ~Streams, 
+        type = "scatter", color = ~date, showlegend = T)
+
+plot_ly(data=taiwan, x = ~speechiness, y = ~Streams, 
+        type = "scatter", color = ~date, showlegend = T)
+
+# acousticness
+
+plot_ly(data=usa, x = ~acousticness, y = ~Streams, 
+        type = "scatter", color = ~date, showlegend = T)
+
+
+# danceability
+
+plot_ly(data=usa, x = ~danceability, y = ~Streams, 
+        type = "scatter", color = ~date, showlegend = T)
+
+
+# artist as group?
+
+################################
+
+ggplot(data = all, mapping = aes(x = danceability, y = log(Streams), color=country)) + 
+  geom_point() 
+
+# compare stream percentage?
+
+log(all$Streams)
+
+get_stream_pct <- function(data) {
+  stream_pct <- data$Streams[1:200]/sum(data$Streams) * 100
+  return(stream_pct)
+}

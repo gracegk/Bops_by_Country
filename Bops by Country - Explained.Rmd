@@ -1,39 +1,224 @@
 ---
 title: "Bops by Country - Explained"
-author: "Grace Kim"
-date: "11/11/2019"
-output: pdf_document
+author: "Gahyun (Grace) Kim"
+date: "12/07/2019"
+output:
+  pdf_document:
+    latex_engine: xelatex
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, echo=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load("ggplot2","knitr","data.table","plotly","kableExtra", "rstan", "arm")
+source("Setup.R")
 ```
 
 ## Introduction
 
-Taiwan was chosen because it was one of the first few countries where Spotify expanded to in Asia. Furthermore, I expected to see more non-American songs on the chart because English is not commonly used in Taiwan, compared to countries such as Singapore or the Philippines. 
+In an era where the world feels smaller than ever before, Spotify allows artists to connect with their global fans in an even easier manner. Spotify is one of the most popular global streaming platforms that provides music, videos, and podcasts. Initially launched in 2008 for service in five European countries, it now has 248 million active users and is available in 79 countries [1]. Spotify has top song charts for each country their users are in, and displays the top 5 cities where an artist's listeners are located. 
 
-irrelevant variables: 
-URL, type, uri, track_href, analysis_url
+Some bands have noticed and utilized their popularity overseas. Gorillaz are a virtual band, active since 1998, whose music encompasses hip hop, rock, and electronic genres. Despite the band being from London, most of Gorillaz's regular monthly listeners on Spotify live in Mexico City (424,983 listeners on December 6th, 2019). Considering how the second city with the most listeners has less than half of that number (174,633 listeners on December 6th, 2019), Gorillaz's popularity in Mexico is notable. In response to the incredible feedback from Mexican listeners, they finished up their last tour in Mexico City instead of their hometown as most bands do [2].
 
-```{r}
+For fledgling artists seeking opportunities, targeting markets overseas may seem appealing. Differences in what global listeners prefer poses the following questions: why are some artists more popular in certain countries? Do popular songs in different countries share certain traits? 
+
+This report attempts to answer those questions by comparing the differences between the top song charts for the United States and Taiwan. Taiwan was chosen because it was one of the first few markets that Spotify expanded to in Asia. Furthermore, it was assumed that more non-American songs would be on their charts; English is not commonly used in Taiwan, compared to Spotify's other early Asian markets such as Singapore or the Philippines. Based on the data collected, a multilevel regression model was fit for both USA and Taiwan to predict what kind of song characteristics would lead to more streams in each country. 
+
+
+## What are the most streamed songs and artists in USA and Taiwan?
+
+The charts collected for this report were the USA and Taiwan Weekly Top 200 Spotify charts for five different weeks: the first week in January of 2017, the first week in July of 2017, the first week in January of 2018, the first week in July of 2018, and the first week in January of 2019. 
+
+On first glance, the Spotify charts for USA and Taiwan looked different. 
+
+The top songs on USA's charts have stream counts that are seven digits, with the first song racking up more than 9 million streams. The top artists are mostly rap and hip-hop artists, such as Migos and Drake. 
+
+```{r, echo=FALSE}
+kable(usa[1:10, c(1:4, 7, 12, 13, 16)], align = 'r', 
+      col.names = c("Rank", "Track Name", "Artist", "Streams", "Danceability", "Speechiness", 
+                    "Acousticness", "Valence"),
+      caption = 'Top 10 Songs in USA and Their Characteristics (1st Week of Jan. 2017)') %>%
+  kable_styling(latex_options = c("striped", "scale_down", "HOLD_position"))
+```
+
+Meanwhile, the stream counts in Taiwan's charts are mostly five digits and the top few songs barely surpass 100 thousand streams. Some of the top artists are the same as USA's, such as the Chainsmokers and the Weeknd, but rap artists are nowhere to be seen in the top 10. Instead, there are local artists such as NICKTHEREAL. 
+
+```{r, echo=FALSE}
+kable(taiwan[1:10, c(1:4, 7, 12, 13, 16)], align = 'r',
+      col.names = c("Rank", "Track Name", "Artist", "Streams", "Danceability", "Speechiness",
+                    "Acousticness", "Valence"),
+      caption = 'Top 10 Songs in Taiwan and Their Characteristics (1st Week of Jan. 2017)') %>%
+  kable_styling(latex_options = c("striped", "scale_down", "HOLD_position"))
+```
+
+Taiwan's total stream counts are much lower than those of USA's because of two main reasons: Spotify is still relatively new in the Asian market and offers less Asian songs than local music streaming apps. Spotify originates from Sweden and expanded its service to USA in 2011 [3]. It did not begin service in Asia, including Taiwan, until 2013 [4]. Furthermore, Spotify offers less Asian songs compared to local music apps such as KKBOX (founded in 2004 in Taiwan) [5]. 
+
+## How are the top songs in USA and Taiwan different or similar?
+
+Spotify has numeric variables that represent different characteristics for every song they offer for streaming. The characteristics examined here are speechiness, acousticness, and danceability. Figures 1 to 3 are density plots, which reflect the distribution of data across a numeric variable. 
+
+Speechiness measures the amount of spoken word in a song. The more exclusive speech-like material that a track has (i.e. audio book, poetry), the closer the metric is to 1.0. Rap music usually has speechiness values between 0.33 and 0.66 [6]. Figure 1 represents the distribution of all the songs in the charts collected for each country at all five time periods, across speechiness. As we noticed how there were fewer rap artists in Taiwan's top 10 songs compared to USA's, there are many more songs that have lower speechiness values in Taiwan's charts. Meanwhile, there is a relatively more even distribution of songs across the speechiness spectrum in USA's charts. 
+
+```{r, echo=FALSE}
+# distribution of speechiness by country
+
+plot_density_speech <- ggplot(all, aes(x=speechiness, fill=country,
+                                      text = paste(country)))+
+  xlim(0.0, 1.0) +
+  geom_density(alpha=0.5, color=NA)+
+  labs(x="Speechiness", y="Density") +
+  guides(fill=guide_legend(title="Country"))+
+  theme_minimal()+
+  ggtitle("Figure 1: Distribution of Speechiness for USA and Taiwan's Top Songs")
+
+print(plot_density_speech)
 
 ```
 
-## What are the Top 200 Songs in USA and Taiwan?
+Acousticness is a confidence measure that reflects how acoustic a song is. If Spotify has a higher confidence that the track is acoustic, then the track's acousticness is closer to 1.0 [6]. Most of the songs in both countries' top songs have lower acousticness, but Taiwan's top songs are distributed more evenly across the scale compared to USA's top songs; in Figure 2, the peak for Taiwan's songs is not as pronounced as that of USA's. Moreover, the median acousticness value for USA's top songs was 0.114 while it was 0.242 for Taiwan's top songs. The visualization of the data distribution and the median values imply that Taiwan has more top songs that are acoustic than USA does. 
 
-exploratory data analysis. 
+```{r, echo=FALSE}
+# distribution of acousticness by country
 
-similar or different characteristics for the tracks. 
-(danceability, speechiness, acousticness, liveness, valence, tempo, duration_ms)
+plot_density_acoustic <- ggplot(all, aes(x=acousticness, fill=country,
+                                    text = paste(country)))+
+  xlim(0.0, 1.0) +
+  geom_density(alpha=0.5, color=NA)+
+  labs(x="Acousticness", y="Density") +
+  guides(fill=guide_legend(title="Country"))+
+  theme_minimal()+
+  ggtitle("Figure 2: Distribution of Acousticness for USA and Taiwan's Top Songs")
 
-```{r}
+print(plot_density_acoustic)
 ```
 
-## (Ultimately)
-## Can I predict what kind of song would chart in USA and Taiwan?
+Danceability indicates how appropriate a song is for dancing. The metric is based on a combination of tempo, rhythmic stability, beat strength, and overall regularity. The better a song is for dancing, the closer it is to 1.0 [6]. In Figure 3, USA's data has a higher and narrower peak around 0.75 while Taiwan's data has a rounder peak at a lower number. The median danceability value for USA's songs was 0.732, and the value for Taiwan was 0.599. Based on this density plot and the median values, we can infer that America's charts generally have more songs that are easier to dance to compared to Taiwan's charts. 
 
-model based on song characteristics 
+```{r, echo=FALSE}
+# distribution of danceability by country
 
-```{r}
+plot_density_dance <- ggplot(all, aes(x=danceability, fill=country,
+                                      text = paste(country)))+
+  xlim(0.0, 1.0) +
+  geom_density(alpha=0.5, color=NA)+
+  labs(x="Danceability", y="Density") +
+  guides(fill=guide_legend(title="Country"))+
+  theme_minimal()+
+  ggtitle("Figure 3: Distribution of Danceability for USA and Taiwan's Top Songs")
+
+print(plot_density_dance)
 ```
+
+Although both countries had differences in the distribution of song characteristics for their top songs, the two countries' charts had one similarity; when all five charts were pooled together for each country, the number of artists were only a small fraction of the number of songs. For USA, there were only 269 artists among the 1000 songs compiled from five different weeks. For Taiwan, there were 323 artists in their 1000 songs. This introduces the possibility that the song's artist may affect the song being on the charts. 
+
+## Can we predict what kind of song would chart higher in USA and Taiwan?
+
+Based on the song characteristics that seemed to differ noticeably for each country (speechiness, acousticness, danceability), a multilevel model was fitted to predict what kind of song would chart higher in USA and Taiwan. 
+
+Assuming that 
+
+* $i$ = 1, ..., 1000 songs (from each country's set of charts) 
+* $j$ = 1, ..., n artists (269 for USA, 323 for Taiwan) 
+* $y_i$ = log of number of streams on Spotify for $i$th song
+* $x$ = individual level predictors, such as speechiness, acousticness, and danceability
+
+we can formulate a multilevel model for each country's data with intercepts varying by artist and song-level predictors: 
+\[
+\ y_i = \alpha_{j[i]} + \beta_{j[i]}x_i + e_{ij}
+\]
+
+Based on the coefficients of the predictors in the models, it was observed that speechiness had a greater effect on the number of streams for USA's model than in Taiwan's model. However, the coefficients of acousticness and danceability were negative for Taiwan's model; this indicates that on average, an increase in acousticness and danceability leads to less streams on Taiwan's chart.  
+
+Refer to the appendix for more information on the models. 
+
+
+## Appendix
+
+```{r, echo=FALSE}
+# distribution of energy by country
+plot_density_energy <- ggplot(all, aes(x=energy, fill=country,
+                                      text = paste(country)))+
+  geom_density(alpha=0.5, color=NA)+
+  labs(x="Energy", y="Density") +
+  guides(fill=guide_legend(title="Country"))+
+  theme_minimal()+
+  ggtitle("Figure: Distribution of Energy for USA and Taiwan's Top Songs")
+```
+
+```{r, echo=FALSE}
+plot_density_val <- ggplot(all, aes(x=valence, fill=country,
+                                    text = paste(country)))+
+  xlim(0.0, 1.0) + 
+  geom_density(alpha=0.5, color=NA)+
+  labs(x="Valence", y="Density") +
+  guides(fill=guide_legend(title="Country"))+
+  theme_minimal()+
+  ggtitle("Figure: Distribution of Valence for USA and Taiwan's Top Songs")
+
+print(plot_density_val)
+```
+
+```{r, echo=FALSE}
+plot_density_tempo <- ggplot(all, aes(x=tempo, fill=country,
+                                    text = paste(country)))+
+  geom_density(alpha=0.5, color=NA)+
+  labs(x="Tempo (BPM)", y="Density") +
+  guides(fill=guide_legend(title="Country"))+
+  theme_minimal()+
+  ggtitle("Figure: Distribution of Tempo for USA and Taiwan's Top Songs")
+
+print(plot_density_tempo)
+```
+
+```{r, echo=FALSE}
+plot_density_duration <- ggplot(all, aes(x=duration_ms, fill=country,
+                                    text = paste(country)))+
+  geom_density(alpha=0.5, color=NA)+
+  labs(x="Duration (ms)", y="Density") +
+  guides(fill=guide_legend(title="Country"))+
+  theme_minimal()+
+  ggtitle("Figure: Distribution of Song Duration for USA and Taiwan's Top Songs")
+
+print(plot_density_duration)
+```
+
+```{r, echo=FALSE}
+plot_density_live <- ggplot(all, aes(x=liveness, fill=country,
+                                    text = paste(country)))+ 
+  xlim(0.0, 1.0) + 
+  geom_density(alpha=0.5, color=NA)+
+  labs(x="Liveness", y="Density") +
+  guides(fill=guide_legend(title="Country"))+
+  theme_minimal()+
+  ggtitle("Figure: Distribution of Liveness for USA and Taiwan's Top Songs")
+
+print(plot_density_live)
+```
+
+```{r, echo=FALSE}
+fit_usa <- lmer(log(Streams) ~ speechiness + acousticness*danceability + (1|Artist), 
+                data = usa)
+summary(fit_usa)
+```
+
+```{r, echo=FALSE}
+fit_taiwan <- lmer(log(Streams) ~ speechiness + acousticness*danceability + (1|Artist), 
+                   data = taiwan)
+summary(fit_taiwan)
+```
+
+## References
+
+Cited sources: 
+
+1. https://newsroom.spotify.com/company-info/
+2. https://newsroom.spotify.com/2018-11-19/mexico-city-is-now-the-worlds-music-streaming-mecca/
+3. http://edition.cnn.com/2011/TECH/web/07/13/spotify.us/
+4. https://thenextweb.com/media/2013/09/24/spotify-quietly-launches-in-taiwan-its-fourth-country-in-asia/
+5. https://www.fastcompany.com/1576788/streaming-music-service-kkbox-chinese-spotify
+6. https://developer.spotify.com/documentation/web-api/reference/tracks/get-audio-features/
+
+Some methods and code were referenced from the following sources:
+
+1. https://www.rcharlie.com/spotifyr/ 
+2. https://msmith7161.github.io/what-is-speechiness/
+
