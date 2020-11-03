@@ -14,4 +14,3 @@ The project was created with RStudio Version 1.2.1335.
 
 Multilevel regression was used to predict what kind of songs would be popular in USA and Taiwan. 
 
-Text analysis was performed to visualize the sentiment in some popular songs on USA's charts. 
